@@ -1,112 +1,146 @@
-@import url(https://fonts.googleapis.com/css?family=Roboto:300);
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
 
-.login-page {
-  width: 360px;
-  padding: 8% 0 0;
-  margin: auto;
+* {
+  box-sizing: border-box;
 }
 
-.wallet-b{
-    color: white;
-    font-weight: 800;
-    font-size: 30px;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 1.2s ease-in-out;
+  color: #fff;
+}
+
+.login-page {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  text-align: center;
+  animation: slideUp 1s ease;
+}
+
+.wallet-b {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem 1.5rem;
+  border-radius: 16px;
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: pulse 2s infinite;
 }
 
 .form {
-  position: relative;
-  z-index: 1;
-  background: #FFFFFF;
-  max-width: 360px;
-  margin: 0 auto 100px;
-  padding: 45px;
-  text-align: center;
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
-}
-.form input {
-  font-family: "Roboto", sans-serif;
-  outline: 0;
-  background: #f2f2f2;
-  width: 100%;
-  border: 0;
-  margin: 0 0 15px;
-  padding: 15px;
-  box-sizing: border-box;
-  font-size: 14px;
-}
-.form button {
-  font-family: "Roboto", sans-serif;
-  text-transform: uppercase;
-  outline: 0;
-  background: #4CAF50;
-  width: 100%;
-  border: 0;
-  padding: 15px;
-  color: #FFFFFF;
-  font-size: 14px;
-  -webkit-transition: all 0.3 ease;
-  transition: all 0.3 ease;
-  cursor: pointer;
-}
-.form button:hover,.form button:active,.form button:focus {
-  background: #43A047;
-}
-.form .message {
-  margin: 15px 0 0;
-  color: #b3b3b3;
-  font-size: 12px;
-}
-.form .message a {
-  color: #4CAF50;
-  text-decoration: none;
-}
-.form .register-form {
-  display: none;
-}
-.container {
-  position: relative;
-  z-index: 1;
-  max-width: 300px;
-  margin: 0 auto;
-}
-.container:before, .container:after {
-  content: "";
-  display: block;
-  clear: both;
-}
-.container .info {
-  margin: 50px auto;
-  text-align: center;
-}
-.container .info h1 {
-  margin: 0 0 15px;
-  padding: 0;
-  font-size: 36px;
-  font-weight: 300;
-  color: #1a1a1a;
-}
-.container .info span {
-  color: #4d4d4d;
-  font-size: 12px;
-}
-.container .info span a {
-  color: #000000;
-  text-decoration: none;
-}
-.container .info span .fa {
-  color: #EF3B3A;
-}
-body {
-  background: #76b852; /* fallback for old browsers */
-  background: rgb(141,194,111);
-  background: linear-gradient(90deg, rgba(141,194,111,1) 0%, rgba(118,184,82,1) 50%);
-  font-family: "Roboto", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;      
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
 }
 
-a{
-    text-decoration: none;
-    color: black;
-    font-size: 15px;
-    font-weight: 400;
+.form:hover {
+  transform: scale(1.02);
+}
+
+.form input {
+  font-family: 'Roboto', sans-serif;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  padding: 15px;
+  margin-bottom: 20px;
+  width: 100%;
+  border-radius: 12px;
+  font-size: 16px;
+  color: #fff;
+  transition: background 0.3s ease;
+}
+
+.form input::placeholder {
+  color: #eee;
+  opacity: 0.8;
+}
+
+.form input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.form button {
+  font-family: 'Roboto', sans-serif;
+  text-transform: uppercase;
+  background: #00c6ff;
+  background: linear-gradient(to right, #0072ff, #00c6ff);
+  color: #fff;
+  border: none;
+  padding: 15px;
+  width: 100%;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 198, 255, 0.5);
+}
+
+.form button:hover {
+  background: linear-gradient(to right, #00c6ff, #0072ff);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 198, 255, 0.7);
+}
+
+a {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-size: 15px;
+  font-weight: 500;
+  color: #ffffff;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #bbf3ff;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(60px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0px rgba(0, 198, 255, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 198, 255, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 0px rgba(0, 198, 255, 0.6);
+  }
 }

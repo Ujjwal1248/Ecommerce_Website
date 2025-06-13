@@ -81,7 +81,6 @@ td {
   border-radius: 10px;
   height: 25px;
   border: none;
-
 }
 .btn-delete:hover {
   background-color: #c82333;
@@ -91,19 +90,18 @@ td {
   max-height: 100px;
   border-radius: 4px;
 }
-.pd{
+.pd {
   display: flex;
   justify-content: center;
 }
-.total-earning{
+.total-earning {
   display: flex;
   align-items: center;
   justify-content: center;
-  position:fixed;
+  position: fixed;
   margin-top: 20px;
   right: 10%;
-  background-color:#ddd ;
+  background-color: #ddd;
   border-radius: 20px;
   width: 15%;
 }
-
