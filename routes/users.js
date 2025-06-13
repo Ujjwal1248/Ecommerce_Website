@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const plm = require("passport-local-mongoose");
 
 mongoose.connect(
-  "mongodb://localhost:27017/Ecommer-Website"
+  "mongodb+srv://ujjwalagrawal1248:ILmMpEWIK3xDlRCC@cluster0.z2hhaik.mongodb.net/"
 );
 
 const cartItemSchema = new mongoose.Schema({
