@@ -1,24 +1,162 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Your Wallet</title>
+  <title>Wallet - Add Funds</title>
   <link rel="stylesheet" href="/stylesheets/wallet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://js.stripe.com/v3/"></script>
+  <meta name="stripe-key" content="<%= stripePublishableKey %>">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  <div class="login-page">
-    <div class="wallet-b">Current Balance: ₹<%= walletBalance %></div>
-    
-    <div class="form">
-      <form class="login-form" action="/wallet/add" method="POST">
-        <!-- Remove this Username field unless needed -->
-        <!-- <input type="text" name="username" placeholder="Username" /> -->
-
-        <input type="number" name="amount" placeholder="Amount" required min="1" />
-        
-        <button type="submit">Add Money</button>
-        <a href="/shop">Back to Shop</a>
-      </form>
+  <!-- Header -->
+  <div class="checkout-header">
+    <div class="header-content">
+      <div class="logo">
+        <i class="fas fa-wallet"></i>
+        <span>MyShop Wallet</span>
+      </div>
+      <div class="header-separator"></div>
+      <span class="page-title">Add Funds</span>
     </div>
   </div>
+
+  <!-- Main Container -->
+  <div class="checkout-container">
+    <!-- Left Section: Order Summary -->
+    <div class="summary-section">
+      <div class="summary-card">
+        <div class="summary-header">
+          <h3>Wallet Summary</h3>
+        </div>
+
+        <!-- Current Balance -->
+        <div class="summary-item current-balance">
+          <div class="balance-label">
+            <i class="fas fa-piggy-bank"></i>
+            <span>Current Balance</span>
+          </div>
+          <div class="balance-amount">₹<%= walletBalance %></div>
+        </div>
+
+        <!-- Amount to Add -->
+        <div class="summary-item amount-to-add">
+          <div class="add-label">
+            <i class="fas fa-plus-circle"></i>
+            <span>Amount to Add</span>
+          </div>
+          <div class="add-amount">
+            <span id="display-amount">₹0</span>
+          </div>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <!-- New Balance -->
+        <div class="summary-item new-balance">
+          <div class="new-label">
+            <i class="fas fa-check-circle"></i>
+            <span>New Balance</span>
+          </div>
+          <div class="new-amount">₹<span id="new-balance"><%= walletBalance %></span></div>
+        </div>
+
+        <!-- Security Info -->
+        <div class="security-info">
+          <div class="security-item">
+            <i class="fas fa-lock"></i>
+            <span>Secure Payment</span>
+          </div>
+          <div class="security-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>SSL Encrypted</span>
+          </div>
+        </div>
+
+        <a href="/shop" class="back-button">
+          <i class="fas fa-arrow-left"></i>
+          <span>Back to Shop</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Section: Payment Form -->
+    <div class="payment-section">
+      <div class="payment-card">
+        <div class="payment-header">
+          <h2>Payment Method</h2>
+          <p>Enter your card details to add funds</p>
+        </div>
+
+        <!-- Amount Input -->
+        <div class="form-group">
+          <label for="amount">
+            <span class="label-text">How much do you want to add?</span>
+            <span class="required">*</span>
+          </label>
+          <div class="amount-input-wrapper">
+            <span class="currency-symbol">₹</span>
+            <input 
+              type="number" 
+              id="amount" 
+              placeholder="0" 
+              required 
+              min="1"
+              step="1"
+              class="amount-input"
+            />
+          </div>
+          <div id="amount-error" class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            <span></span>
+          </div>
+          <div class="amount-suggestions">
+            <button type="button" class="amount-btn" data-amount="100">₹100</button>
+            <button type="button" class="amount-btn" data-amount="500">₹500</button>
+            <button type="button" class="amount-btn" data-amount="1000">₹1000</button>
+            <button type="button" class="amount-btn" data-amount="5000">₹5000</button>
+          </div>
+        </div>
+
+        <!-- Card Details -->
+        <div class="form-group">
+          <label for="card-element">
+            <span class="label-text">Card Details</span>
+            <span class="required">*</span>
+          </label>
+          <div id="card-element" class="card-element"></div>
+          <div id="card-error" class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            <span></span>
+          </div>
+        </div>
+
+        <!-- Payment Button -->
+        <button id="pay-button" type="button" class="pay-button">
+          <span class="button-text">Pay</span>
+          <span class="button-amount">₹<span id="btn-amount">0</span></span>
+        </button>
+
+        <!-- Stripe Logo -->
+        <div class="stripe-badge">
+          <p>Powered by <strong>Stripe</strong></p>
+        </div>
+
+        <!-- Payment Status Messages -->
+        <div id="payment-status" class="payment-status">
+          <div class="status-content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Processing your payment...</p>
+  </div>
+
+  <script src="/javascripts/stripe-payment.js"></script>
 </body>
 </html>

@@ -3,9 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Checkout - Secure Payment</title>
+    <link rel="stylesheet" href="/stylesheets/theme.css" />
+    <link rel="stylesheet" href="/stylesheets/cart.css" />
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        .checkout-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 123, 255, 0.1);
+        }
+
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .checkout-header h1 {
+            color: #007bff;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-summary {
+            background: #f0f4ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #007bff;
+        }
+
+        .order-summary p {
+            margin: 0.5rem 0;
+            color: #333;
+        }
+
+        .order-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #007bff;
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        #card-element {
+            border: 1px solid #e0e3e8;
+            border-radius: 8px;
+            padding: 0.75rem;
+            background: white;
+        }
+
+        .card-error {
+            color: #dc3545;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .processing {
+            text-align: center;
+            margin-top: 1rem;
+            color: #666;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .back-link a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    checkout
+    <%- include('header') %>
+    <div class="page-container">
+        <div class="checkout-container">
+            <div class="checkout-header">
+                <h1>Secure Checkout</h1>
+                <p>Complete your purchase with Stripe</p>
+            </div>
+
+            <div class="order-summary">
+                <p><strong>Order Total:</strong></p>
+                <p class="order-amount">₹ <%= totalPrice %></p>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">Your payment is secure and processed by Stripe</p>
+            </div>
+
+            <form id="payment-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="your.email@example.com" value="<%= user.email %>">
+                </div>
+
+                <div class="form-group">
+                    <label for="card-element">Card Details</label>
+                    <div id="card-element"></div>
+                    <div id="card-error" class="card-error" role="alert"></div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn">
+                    <span id="button-text">Pay ₹<%= totalPrice %></span>
+                </button>
+            </form>
+
+            <div id="payment-status" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px;"></div>
+
+            <div class="back-link">
+                <a href="/cart">← Back to Cart</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const totalPrice = <%= totalPrice %>;
+        const userId = '<%= user._id.toString() %>';
+        const stripe = Stripe('<%= stripePublicKey %>');
+        const elements = stripe.elements();
+        const cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+
+        const form = document.getElementById('payment-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const cardError = document.getElementById('card-error');
+        const paymentStatus = document.getElementById('payment-status');
+
+        cardElement.addEventListener('change', (event) => {
+            cardError.textContent = event.error ? event.error.message : '';
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            document.getElementById('button-text').textContent = 'Processing...';
+
+            try {
+                // Create payment intent on server
+                const response = await fetch('/create-payment-intent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        totalPrice: totalPrice,
+                        userId: userId,
+                        email: document.getElementById('email').value
+                    })
+                });
+
+                const { clientSecret } = await response.json();
+
+                // Confirm payment with Stripe
+                const result = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: {
+                            email: document.getElementById('email').value
+                        }
+                    }
+                });
+
+                if (result.error) {
+                    cardError.textContent = result.error.message;
+                    submitBtn.disabled = false;
+                    document.getElementById('button-text').textContent = `Pay ₹${totalPrice}`;
+                } else if (result.paymentIntent.status === 'succeeded') {
+                    // Payment successful - confirm with server
+                    const confirmResponse = await fetch('/confirm-direct-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            paymentIntentId: result.paymentIntent.id,
+                            totalPrice: totalPrice,
+                            userId: userId
+                        })
+                    });
+
+                    const confirmResult = await confirmResponse.json();
+                    if (confirmResult.success) {
+                        paymentStatus.style.display = 'block';
+                        paymentStatus.style.background = '#d4edda';
+                        paymentStatus.style.color = '#155724';
+                        paymentStatus.innerHTML = '<strong>✓ Payment Successful!</strong> Redirecting to shop...';
+                        setTimeout(() => window.location.href = '/shop', 2000);
+                    } else {
+                        throw new Error(confirmResult.error);
+                    }
+                }
+            } catch (error) {
+                cardError.textContent = error.message;
+                submitBtn.disabled = false;
+                document.getElementById('button-text').textContent = `Pay ₹${totalPrice}`;
+            }
+        });
+    </script>
 </body>
 </html>

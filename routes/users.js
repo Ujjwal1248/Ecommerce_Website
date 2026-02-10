@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const plm = require("passport-local-mongoose");
 
 mongoose.connect(
-  "mongodb+srv://ujjwalagrawal1248:ILmMpEWIK3xDlRCC@cluster0.z2hhaik.mongodb.net/"
+  "mongodb+srv://ujjwalagrawal1248_db_user:QtTAb3eby05gWeAq@cluster0.kvlfxfo.mongodb.net/"
 );
 
 const cartItemSchema = new mongoose.Schema({
@@ -10,6 +10,7 @@ const cartItemSchema = new mongoose.Schema({
   quantity: { type: Number, default: 1 },
   bargainedPrice: { type: Number }, // optional custom price from bargain
 });
+
 
 const userSchema = new mongoose.Schema({
   fullName: String,

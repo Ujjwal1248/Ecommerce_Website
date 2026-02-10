@@ -4,18 +4,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cart Page</title>
+  <title>Cart</title>
+  <link rel="stylesheet" href="/stylesheets/theme.css" />
   <link rel="stylesheet" href="/stylesheets/cart.css" />
 </head>
 
 <body>
-  <a href="/wallet" class="wallet-btn">
-    Wallet: ₹<%= user.wallet %>
-  </a>
+  <%- include('header') %>
+  
+  <div class="page-container">
+    <!-- Wallet Balance Card -->
+    <div class="wallet-balance-card">
+      <div class="wallet-header">
+        <div class="wallet-info">
+          <h3 class="wallet-label">Wallet Balance</h3>
+          <div class="balance-amount">₹<%= user.wallet %></div>
+        </div>
+        <a href="/wallet" class="wallet-add-btn">+ Add Funds</a>
+      </div>
+    </div>
 
   <div class="cart-page">
     <div class="cart-details">
-      <h1>Cart Details</h1>
+      <h1>Shopping Cart</h1>
       <table>
         <thead>
           <tr>
@@ -56,24 +67,38 @@
             </tr>
           <% }); %>
 
-          <tr>
+          <tr class="total-row">
             <td colspan="4"><strong>Total</strong></td>
-            <td><strong>₹ <%= totalPrice %></strong></td>
-            <td>
-              <form id="payNowForm" action="/pay-now/<%= user._id %>" method="GET" onsubmit="return confirmWalletPayment();">
-                <input type="hidden" name="totalPrice" value="<%= totalPrice %>">
-                <button class="paynow-btn" type="submit">Pay Now</button>
-              </form>
+            <td class="total-price"><strong>₹ <%= totalPrice %></strong></td>
+            <td class="payment-buttons">
+              <div class="payment-options">
+                <form id="walletPayForm" action="/pay-now/<%= user._id %>" method="GET" onsubmit="return confirmWalletPayment();">
+                  <input type="hidden" name="totalPrice" value="<%= totalPrice %>">
+                  <button class="paynow-btn wallet-btn" type="submit" id="walletPayBtn">💳 Wallet</button>
+                </form>
+                <button class="paynow-btn direct-pay-btn" type="button" id="directPayBtn" onclick="handleDirectPay()">💰 Direct Pay</button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
+    </div>
+    <!-- Balance Status -->
+    <div class="balance-status" id="balanceStatus" <% if (user.wallet >= totalPrice) { %>data-status="success"<% } else { %>data-status="warning"<% } %>>
+      <% if (user.wallet >= totalPrice) { %>
+        <span class="status-icon success">✓</span>
+        <span class="status-text">You have sufficient balance to proceed with payment</span>
+      <% } else { %>
+        <span class="status-icon warning">⚠</span>
+        <span class="status-text">Insufficient balance. Add ₹<%= totalPrice - user.wallet %> to proceed</span>
+      <% } %>
     </div>
   </div>
 
   <script>
     const total = <%- JSON.stringify(totalPrice || 0) %>;
     const wallet = <%- JSON.stringify(user.wallet || 0) %>;
+    const userId = <%- JSON.stringify(user._id.toString()) %>;
 
     function confirmWalletPayment() {
       if (wallet < total) {
@@ -83,7 +108,13 @@
 
       return confirm(`This will deduct ₹${total} from your wallet (Current Balance: ₹${wallet}). Proceed?`);
     }
+
+    function handleDirectPay() {
+      // Redirect to Stripe checkout page
+      window.location.href = `/checkout?totalPrice=${total}`;
+    }
   </script>
+  </div>
 </body>
 
 </html>

@@ -1,0 +1,74 @@
+STRIPE PAYMENT GATEWAY SETUP
+============================
+
+The wallet payment system now includes Stripe integration for secure credit card payments.
+
+IMPORTANT SETUP STEPS:
+======================
+
+1. GET STRIPE API KEYS
+   - Go to https://dashboard.stripe.com/apikeys
+   - Copy your "Secret key" (starts with sk_test_)
+   - Copy your "Publishable key" (starts with pk_test_)
+
+2. UPDATE .env FILE
+   - Open the .env file in the project root
+   - Replace the placeholders:
+     
+     STRIPE_SECRET_KEY=sk_test_your_actual_secret_key_here
+     STRIPE_PUBLISHABLE_KEY=pk_test_your_actual_publishable_key_here
+
+3. RESTART THE SERVER
+   - Stop the current server (Ctrl+C)
+   - Run: npx nodemon
+   - The payment gateway should now be active
+
+TESTING PAYMENTS:
+==================
+
+Use these test card details (Stripe provides):
+- Card Number: 4242 4242 4242 4242
+- Expiry: Any future date (e.g., 12/26)
+- CVC: Any 3-digit number (e.g., 123)
+- Cardholder Name: Any name
+
+HOW IT WORKS:
+=============
+
+1. User visits /wallet page
+2. User enters amount and card details
+3. Frontend creates a Stripe payment intent
+4. User confirms payment
+5. On success, wallet balance is updated
+6. User is redirected to /wallet
+
+KEY FILES MODIFIED:
+====================
+
+- .env (new) - Stores Stripe keys
+- app.js - Loads environment variables
+- routes/index.js - Stripe payment endpoints
+- views/wallet.ejs - Updated UI for Stripe
+- public/javascripts/stripe-payment.js (new) - Client-side Stripe logic
+- public/stylesheets/wallet.css - Updated styles
+
+ROUTES:
+=======
+
+POST /wallet/create-payment-intent
+  - Creates a Stripe payment intent
+  - Body: { amount: number (in rupees) }
+  - Returns: { clientSecret: string }
+
+POST /wallet/confirm-payment
+  - Confirms and processes payment
+  - Body: { paymentIntentId: string, amount: number }
+  - Returns: { success: true, message: string }
+
+GET /wallet
+  - Displays wallet page with payment form
+
+For production, use:
+- Live keys (starts with sk_live_ and pk_live_)
+- Update payment options in Stripe dashboard
+- Follow Stripe's compliance requirements

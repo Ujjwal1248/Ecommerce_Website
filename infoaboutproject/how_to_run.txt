@@ -4,7 +4,7 @@
 2 => Open the terminal with path as the directory path
 
 3 => To install all the dependencies Run the command: =>
-    npm install bcryptjs body-parser cookie-parser cors debug dotenv ejs express express-session http-errors jsonwebtoken mongodb mongoose morgan multer nodemailer nodemon passport passport-local passport-local-mongoose pug uuid
+    npm i
 
 4 => Run in terminal => npx nodemon
 

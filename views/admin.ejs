@@ -4,42 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Product Page</title>
+    <title>Add Product</title>
+    <link rel="stylesheet" href="/stylesheets/theme.css">
     <link rel="stylesheet" href="/stylesheets/admin.css">
 </head>
 
 <body>
+    <%- include('header') %>
 
-    <nav class="navbar">
-        <a href="/">Home</a>
-        <a href="/admin">Sell</a>
-        <a href="/shop">Shop</a>
-        <a href="/cart">Cart</a>
-        <a href="/wallet">Wallet</a>
-        <a href="/admin-products">Statistics</a>
-    </nav>
-    <div class="container">
+    <div class="page-container">
         <h1>Add New Product</h1>
-        <form action="/admin" id="product-form" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="product-name">Product Name</label>
-                <input type="text" id="product-name" name="pName" required>
-            </div>
-            <div class="form-group">
-                <label for="product-price">Product Price</label>
-                <input type="number" id="product-price" name="pPrice" required>
-            </div>
-            <div class="form-group">
-                <label for="product-description">Product Description</label>
-                <textarea id="product-description" name="pDescription" rows="4" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="pPhoto">Product Photo</label>
-                <input type="file" id="pPhoto" name="pPhoto">
-            </div>
-            <button type="submit">Add Product</button>
-        </form>
-    </div><a href="/admin-products"><button class="btn1">Check Your Statistics</button></a>
+        <div class="container">
+            <form action="/admin" id="product-form" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="product-name">Product Name</label>
+                    <input type="text" id="product-name" name="pName" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-price">Product Price</label>
+                    <input type="number" id="product-price" name="pPrice" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-description">Product Description</label>
+                    <textarea id="product-description" name="pDescription" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="pPhoto">Product Photo</label>
+                    <input type="file" id="pPhoto" name="pPhoto">
+                </div>
+                <button type="submit">Add Product</button>
+                <a href="/admin-products" style="text-decoration: none;"><button type="button" class="btn1">Check Your Statistics</button></a>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>

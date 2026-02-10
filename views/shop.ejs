@@ -4,26 +4,16 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Product Card</title>
+    <title>Shop</title>
+    <link rel="stylesheet" href="/stylesheets/theme.css" />
     <link rel="stylesheet" href="/stylesheets/shop.css" />
-    <!-- <script src="/javascripts/backpack.js"></script> -->
 </head>
 
 <body>
-    <a href="/cart"><button class="show-cart-btn">Cart</button></a>
-    <a href="/wallet" class="wallet-btn">
-        Wallet: ₹<%= user.wallet %>
-    </a>
-    <nav class="navbar">
-        <a href="/">Home</a>
-        <a href="/admin">Sell</a>
-        <a href="/shop">Shop</a>
-        <a href="/cart">Cart</a>
-        <a href="/wallet">Wallet</a>
-        <a href="/admin-products">Statistics</a>
-        <a href="/profile">Profile</a>
-    </nav>
-    <div class="container">
+    <%- include('header') %>
+    
+    <div class="page-container">
+        <div class="container">
         <% products.forEach(function(product) { %>
             <div class="card">
                 <img src="/images/product/<%= product.pPhoto %>" alt="<%= product.pName %>" />
@@ -41,8 +31,14 @@
                 <div class="card-footer">
                     <p class="price">₹ <%= product.pPrice %>
                     </p>
-                    <br />
-                    <a href="/addtocart/<%= product._id %>" class="btn add-to-cart">ADD TO CART</a>
+                    <div class="quantity-section">
+                        <div class="quantity-adjuster">
+                            <button type="button" class="qty-btn qty-decrease" onclick="decreaseQty(this)">−</button>
+                            <input type="number" class="qty-input" value="1" min="1" max="100">
+                            <button type="button" class="qty-btn qty-increase" onclick="increaseQty(this)">+</button>
+                        </div>
+                        <button class="btn add-to-cart" onclick="addToCartAjax('<%= product._id %>', this)">ADD TO CART</button>
+                    </div>
                 </div>
                 <form action="/bargain/<%= product._id %>" method="POST" class="bargain-form">
                     <div class="bargain-input-group">
@@ -63,14 +59,77 @@
             <!-- Inside your product loop -->
 
             <% }); %>
+        </div>
     </div>
-    <a href="/admin"><button class="btn1">Make your Items listed</button></a>
 
     <div id="cart">
         <h3>Shopping Cart</h3>
         <ul id="cart-items"></ul>
         <div id="total-amount">Total: $0</div>
     </div>
+
+    <script src="/javascripts/stripe-payment.js"></script>
+
+    <script>
+        // Quantity adjuster functions
+        function increaseQty(btn) {
+            const input = btn.previousElementSibling;
+            input.value = Math.min(parseInt(input.value) + 1, 100);
+        }
+
+        function decreaseQty(btn) {
+            const input = btn.nextElementSibling;
+            input.value = Math.max(parseInt(input.value) - 1, 1);
+        }
+
+        // Add to cart with AJAX (no page reload)
+        async function addToCartAjax(productID, btn) {
+            const quantityInput = btn.parentElement.querySelector('.qty-input');
+            const quantity = parseInt(quantityInput.value) || 1;
+
+            try {
+                const response = await fetch(`/addtocart/${productID}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ quantity: quantity })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success message
+                    showNotification(`✓ Added ${quantity} item${quantity > 1 ? 's' : ''} to cart!`, 'success');
+                    
+                    // Reset quantity to 1
+                    quantityInput.value = 1;
+                } else {
+                    showNotification('Error adding to cart', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error adding to cart', 'error');
+            }
+        }
+
+        // Notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Trigger animation
+            setTimeout(() => notification.classList.add('show'), 10);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
 </body>
 
 </html>

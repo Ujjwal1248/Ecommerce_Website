@@ -3,9 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Error</title>
+    <link rel="stylesheet" href="/stylesheets/theme.css" />
+    <style>
+      .error-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        text-align: center;
+      }
+      .error-code {
+        font-size: 4rem;
+        font-weight: 700;
+        color: var(--danger-color);
+      }
+      .error-message {
+        font-size: 1.5rem;
+        color: var(--dark);
+        margin: 1rem 0;
+      }
+      .error-description {
+        color: var(--secondary-color);
+        margin-bottom: 2rem;
+      }
+    </style>
   </head>
   <body>
-    Error
+    <%- include('header') %>
+    <div class="page-container">
+      <div class="error-container">
+        <div class="error-code">Error</div>
+        <div class="error-message"><%= message %></div>
+        <div class="error-description">Something went wrong. Please try again later.</div>
+        <a href="/" class="btn btn-primary">Back to Home</a>
+      </div>
+    </div>
   </body>
 </html>

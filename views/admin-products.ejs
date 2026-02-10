@@ -5,82 +5,275 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Producer Dashboard</title>
+  <link rel="stylesheet" href="/stylesheets/theme.css" />
   <link href="/stylesheets/admin-product.css" rel="stylesheet" />
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
-  <div class="main"></div>
-
-  <div class="container">
-    <div class="pd">
+  <%- include('header') %>
+  
+  <div class="page-container">
+    <div class="dashboard-header">
       <h1>Producer Dashboard</h1>
       <div class="total-earning">
-        Total Earnings: ₹<%= totalEarnings.toFixed(2) %>
+        <span class="earning-label">Total Earnings:</span>
+        <span class="earning-amount">₹<%= totalEarnings.toFixed(2) %></span>
       </div>
     </div>
 
-    <!-- Sales Information -->
-    <div class="section">
-      <div class="section-title">Sales Information</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Product Name</th>
-            <th>Quantity Sold</th>
-            <th>Consumer Name</th>
-            <th>Consumer Email</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% sales.forEach(sale => { %>
-            <tr>
-              <td><%= sale.productId.pName %></td>
-              <td><%= sale.quantity %></td>
-              <td><%= sale.userId.fullName %></td>
-              <td><%= sale.userId.email %></td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    </div>
+    <div class="container">
+      <!-- Charts Section -->
+      <div class="charts-section">
+        <!-- Sales by Product - Bar Chart -->
+        <div class="chart-container">
+          <h2 class="chart-title">Sales by Product (Bar Chart)</h2>
+          <canvas id="salesByProductChart"></canvas>
+        </div>
 
-    <!-- Products Listing -->
-    <div class="section">
-      <div class="section-title">Products Listed</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Product Name</th>
-            <th>Image</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% products.forEach(product => { %>
-            <tr>
-              <td><%= product.pName %></td>
-              <td>
-                <img src="/images/product/<%= product.pPhoto %>" alt="<%= product.pName %>" class="product-img" />
-              </td>
-              <td><%= product.pDescription %></td>
-              <td>₹<%= product.pPrice %></td>
-              <td>
-                <form action="/delete-product/<%= product._id %>" method="POST">
-                  <button class="btn-delete" type="submit">Delete</button>
-                </form>
-              </td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
+        <!-- Product Distribution - Pie Chart -->
+        <div class="chart-container">
+          <h2 class="chart-title">Product Distribution (Pie Chart)</h2>
+          <canvas id="productDistributionChart"></canvas>
+        </div>
 
-      <a href="/admin">
-        <button class="btn btn-add">Add New Product</button>
-      </a>
+        <!-- Sales Trend - Line Chart -->
+        <div class="chart-container">
+          <h2 class="chart-title">Sales Quantity Trend (Line Chart)</h2>
+          <canvas id="salesTrendChart"></canvas>
+        </div>
+
+        <!-- Top Selling Products - Doughnut Chart -->
+        <div class="chart-container">
+          <h2 class="chart-title">Top Selling Products (Doughnut Chart)</h2>
+          <canvas id="topSellingChart"></canvas>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <!-- Sales Information -->
+      <div class="section">
+        <h2 class="section-title">Sales Information</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Quantity Sold</th>
+                <th>Consumer Name</th>
+                <th>Consumer Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% sales.forEach(sale => { %>
+                <tr>
+                  <td><%= sale.productId.pName %></td>
+                  <td><%= sale.quantity %></td>
+                  <td><%= sale.userId.fullName %></td>
+                  <td><%= sale.userId.email %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Products Listing -->
+      <div class="section">
+        <h2 class="section-title">Products Listed</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Image</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% products.forEach(product => { %>
+                <tr>
+                  <td><%= product.pName %></td>
+                  <td>
+                    <img src="/images/product/<%= product.pPhoto %>" alt="<%= product.pName %>" class="product-img" />
+                  </td>
+                  <td><%= product.pDescription %></td>
+                  <td>₹<%= product.pPrice %></td>
+                  <td>
+                    <form action="/delete-product/<%= product._id %>" method="POST">
+                      <button class="btn-delete" type="submit">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <a href="/admin" style="text-decoration: none;">
+          <button class="btn btn-add">+ Add New Product</button>
+        </a>
+      </div>
     </div>
   </div>
+
+  <script>
+    // Prepare data for charts
+    const salesData = <%- JSON.stringify(sales) %>;
+    const productsData = <%- JSON.stringify(products) %>;
+
+    // Sales by Product Chart (Bar)
+    (() => {
+      const productSales = {};
+      salesData.forEach(sale => {
+        const productName = sale.productId.pName;
+        productSales[productName] = (productSales[productName] || 0) + sale.quantity;
+      });
+
+      const ctx = document.getElementById('salesByProductChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(productSales),
+          datasets: [{
+            label: 'Quantity Sold',
+            data: Object.values(productSales),
+            backgroundColor: 'rgba(0, 123, 255, 0.7)',
+            borderColor: 'rgba(0, 123, 255, 1)',
+            borderWidth: 2,
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { font: { size: 12, weight: '600' } }
+            }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    })();
+
+    // Product Distribution Pie Chart
+    (() => {
+      const ctx = document.getElementById('productDistributionChart').getContext('2d');
+      const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6f42c1'];
+      const backgroundColors = colors.map((c, i) => c + (i % 2 === 0 ? 'cc' : '99'));
+
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: productsData.map(p => p.pName),
+          datasets: [{
+            data: productsData.map(() => 1),
+            backgroundColor: backgroundColors,
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { font: { size: 11, weight: '600' }, padding: 15 }
+            }
+          }
+        }
+      });
+    })();
+
+    // Sales Trend Line Chart
+    (() => {
+      const sortedSales = [...salesData].sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+      const cumulativeData = [];
+      let sum = 0;
+      sortedSales.forEach(sale => {
+        sum += sale.quantity;
+        cumulativeData.push(sum);
+      });
+
+      const labels = sortedSales.map((_, i) => `Sale ${i + 1}`);
+
+      const ctx = document.getElementById('salesTrendChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Cumulative Sales',
+            data: cumulativeData,
+            borderColor: 'rgba(0, 123, 255, 1)',
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 5,
+            pointBackgroundColor: 'rgba(0, 123, 255, 1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { font: { size: 12, weight: '600' } }
+            }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    })();
+
+    // Top Selling Products Doughnut Chart
+    (() => {
+      const productSales = {};
+      salesData.forEach(sale => {
+        const productName = sale.productId.pName;
+        productSales[productName] = (productSales[productName] || 0) + sale.quantity;
+      });
+
+      const sortedProducts = Object.entries(productSales)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+      const ctx = document.getElementById('topSellingChart').getContext('2d');
+      const colors = ['#28a745', '#007bff', '#ffc107', '#dc3545', '#17a2b8'];
+
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: sortedProducts.map(([name]) => name),
+          datasets: [{
+            data: sortedProducts.map(([, qty]) => qty),
+            backgroundColor: colors,
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { font: { size: 11, weight: '600' }, padding: 15 }
+            }
+          }
+        }
+      });
+    })();
+  </script>
 </body>
 
-</html>
