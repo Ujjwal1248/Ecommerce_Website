@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 const plm = require("passport-local-mongoose");
 
-mongoose.connect(
-  "mongodb+srv://ujjwalagrawal1248_db_user:QtTAb3eby05gWeAq@cluster0.kvlfxfo.mongodb.net/"
-);
-
 const cartItemSchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
   quantity: { type: Number, default: 1 },

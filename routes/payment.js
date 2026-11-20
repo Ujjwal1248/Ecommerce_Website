@@ -8,7 +8,17 @@ const router = express.Router();
 const userModel = require("./users");
 const saleModel = require("./sale");
 const { isLoggedIn } = require("../middleware/auth");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? require("stripe")(process.env.STRIPE_SECRET_KEY)
+  : null;
+
+const requireStripe = (res) => {
+  if (!stripe) {
+    res.status(503).json({ error: "Stripe is not configured" });
+    return false;
+  }
+  return true;
+};
 
 // ============ Wallet Routes ============
 
@@ -29,6 +39,7 @@ router.get("/wallet", isLoggedIn, async (req, res) => {
 // Create payment intent for wallet top-up
 router.post("/wallet/create-payment-intent", isLoggedIn, async (req, res) => {
   try {
+    if (!requireStripe(res)) return;
     const amount = req.body.amount;
     if (!amount || amount <= 0) {
       return res.status(400).json({ error: "Invalid amount" });
@@ -55,6 +66,7 @@ router.post("/wallet/create-payment-intent", isLoggedIn, async (req, res) => {
 // Confirm wallet payment
 router.post("/wallet/confirm-payment", isLoggedIn, async (req, res) => {
   try {
+    if (!requireStripe(res)) return;
     const { paymentIntentId, amount } = req.body;
 
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
@@ -146,6 +158,7 @@ router.get("/checkout", isLoggedIn, async (req, res) => {
 // Create payment intent for direct checkout
 router.post("/create-payment-intent", isLoggedIn, async (req, res) => {
   try {
+    if (!requireStripe(res)) return;
     const { totalPrice, userId, email } = req.body;
     
     if (!totalPrice || totalPrice <= 0) {
@@ -173,6 +186,7 @@ router.post("/create-payment-intent", isLoggedIn, async (req, res) => {
 // Confirm direct payment and process order
 router.post("/confirm-direct-payment", isLoggedIn, async (req, res) => {
   try {
+    if (!requireStripe(res)) return;
     const { paymentIntentId, totalPrice, userId } = req.body;
 
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
